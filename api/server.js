@@ -1,66 +1,54 @@
 // Vercel serverless function wrapper for TanStack Start SSR
-// This file wraps the built server (dist/server/server.js) for Vercel's Node.js runtime
-
-import { createServer } from "node:http";
-import { readFileSync, existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import { Readable } from "node:stream";
 
-// Path to the built server
-const DIST_SERVER = resolve(process.cwd(), "dist/server/server.js");
-const DIST_CLIENT = resolve(process.cwd(), "dist/client");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// dist/server is one level up from api/
+const DIST_SERVER = resolve(__dirname, "../dist/server/server.js");
 
 let serverHandler = null;
 
 async function getHandler() {
   if (!serverHandler) {
-    try {
-      const mod = await import(DIST_SERVER);
-      serverHandler = mod.default;
-    } catch (e) {
-      console.error("Failed to load server:", e);
-      throw e;
-    }
+    const mod = await import(DIST_SERVER);
+    serverHandler = mod.default;
   }
   return serverHandler;
 }
 
-function buildRequestFromVercel(req) {
+function buildRequest(req) {
   const protocol = req.headers["x-forwarded-proto"] || "https";
-  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
   const url = `${protocol}://${host}${req.url}`;
 
   const headers = new Headers();
   for (const [key, value] of Object.entries(req.headers)) {
-    if (value !== undefined) {
-      if (Array.isArray(value)) {
-        for (const v of value) headers.append(key, v);
-      } else {
-        headers.set(key, value);
-      }
-    }
+    if (value === undefined) continue;
+    Array.isArray(value)
+      ? value.forEach((v) => headers.append(key, v))
+      : headers.set(key, value);
   }
 
   const method = req.method || "GET";
   const hasBody = method !== "GET" && method !== "HEAD";
 
-  if (hasBody) {
-    return new Request(url, {
-      method,
-      headers,
-      body: Readable.toWeb(req),
-      duplex: "half",
-    });
-  }
-
-  return new Request(url, { method, headers });
+  return new Request(url, {
+    method,
+    headers,
+    ...(hasBody ? { body: Readable.toWeb(req), duplex: "half" } : {}),
+  });
 }
 
 export default async function handler(req, res) {
   try {
     const server = await getHandler();
-    const request = buildRequestFromVercel(req);
-    const response = await server.fetch(request, {}, {});
+    const request = buildRequest(req);
+
+    const response = await server.fetch(request, process.env, {});
 
     res.statusCode = response.status;
 
@@ -73,7 +61,7 @@ export default async function handler(req, res) {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        res.write(value);
+        res.write(Buffer.from(value));
       }
     }
 
@@ -81,7 +69,7 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error("Vercel handler error:", err);
     res.statusCode = 500;
-    res.setHeader("Content-Type", "text/html");
-    res.end(`<h1>Server Error</h1><p>${err.message}</p>`);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.end(`<!doctype html><html><body><h1>Server Error</h1><pre>${err.message}</pre></body></html>`);
   }
 }

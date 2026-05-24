@@ -53,9 +53,9 @@ VITE_SUPABASE_PUBLISHABLE_KEY=...
 VITE_SUPABASE_PROJECT_ID=...
 SUPABASE_URL=...
 SUPABASE_PUBLISHABLE_KEY=...
-# Server-only (set in Lovable Cloud / deployment env):
+# Server-only (set in deployment env):
 SUPABASE_SERVICE_ROLE_KEY=...
-LOVABLE_API_KEY=...           # for AI Gateway
+NVIDIA_API_KEY=...             # for NVIDIA NIM Gateway
 ```
 
 ## 🎨 Design — Midnight Cyan Glow
@@ -64,7 +64,7 @@ LOVABLE_API_KEY=...           # for AI Gateway
 - Glassmorphism cards, gradient borders, animated grid bg, glowing CTAs
 
 ## 🧠 AI Chat
-Streaming endpoint: `POST /api/chat` → Lovable AI Gateway (`google/gemini-3-flash-preview`).
+Streaming endpoint: `POST /api/chat` → NVIDIA NIM Gateway (`meta/llama-3.1-70b-instruct`).
 Floating widget in `ChatWidget.tsx` with suggested prompts + markdown rendering.
 
 ## 📩 Leads

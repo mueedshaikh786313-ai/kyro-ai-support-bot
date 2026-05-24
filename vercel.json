@@ -3,8 +3,8 @@
   "outputDirectory": "dist/client",
   "functions": {
     "api/server.js": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "dist/server/**"
     }
   },
   "routes": [

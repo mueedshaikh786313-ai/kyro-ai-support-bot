@@ -73,7 +73,6 @@ export const Route = createFileRoute("/api/chat")({
         }
 
         const nvidiaApiKey = process.env.NVIDIA_API_KEY;
-        const lovableApiKey = process.env.LOVABLE_API_KEY;
 
         let model;
 
@@ -87,21 +86,11 @@ export const Route = createFileRoute("/api/chat")({
           });
           // Using a standard, highly performant Llama 3.1 70B Instruct NIM
           model = gateway("meta/llama-3.1-70b-instruct");
-        } else if (lovableApiKey) {
-          const gateway = createOpenAICompatible({
-            name: "lovable",
-            baseURL: "https://ai.gateway.lovable.dev/v1",
-            headers: {
-              "Lovable-API-Key": lovableApiKey,
-              "X-Lovable-AIG-SDK": "vercel-ai-sdk",
-            },
-          });
-          model = gateway("google/gemini-3-flash-preview");
         } else {
-          // No AI API key configured – return a simple mock answer for demo purposes
+          // No NVIDIA API key configured – return a simple mock answer for demo purposes
           const mockMessage = {
             role: "assistant" as const,
-            content: "Hello! I’m Kyro, your AI support assistant. How can I help you today?"
+            content: "Hello! I’m Kyro, your AI support assistant. (Demo Mode: Please set NVIDIA_API_KEY environment variable to enable live AI responses)."
           };
           return new Response(JSON.stringify([mockMessage]), {
             status: 200,
