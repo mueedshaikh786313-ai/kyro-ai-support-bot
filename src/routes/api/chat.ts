@@ -59,6 +59,28 @@ type ChatRequestBody = {
   activeBot?: "kyro" | "luxe" | "custom";
 };
 
+function createMockStreamResponse(text: string) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const words = text.split(" ");
+      for (let i = 0; i < words.length; i++) {
+        const chunk = words[i] + (i === words.length - 1 ? "" : " ");
+        controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk)}\n`));
+        await new Promise((r) => setTimeout(r, 45));
+      }
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "x-vercel-ai-stream-protocol": "v1",
+    },
+  });
+}
+
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
@@ -87,15 +109,8 @@ export const Route = createFileRoute("/api/chat")({
           // Using a standard, highly performant Llama 3.1 70B Instruct NIM
           model = gateway("meta/llama-3.1-70b-instruct");
         } else {
-          // No NVIDIA API key configured – return a simple mock answer for demo purposes
-          const mockMessage = {
-            role: "assistant" as const,
-            content: "Hello! I’m Kyro, your AI support assistant. (Demo Mode: Please set NVIDIA_API_KEY environment variable to enable live AI responses)."
-          };
-          return new Response(JSON.stringify([mockMessage]), {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-          });
+          // No NVIDIA API key configured – return a simulated stream response
+          return createMockStreamResponse("Hello! I’m Kyro, your AI support assistant. (Demo Mode: Please set the NVIDIA_API_KEY environment variable in your Vercel Dashboard to enable live AI responses).");
         }
 
         let clientId = "00000000-0000-0000-0000-000000000000"; // default Kyro demo ID
@@ -180,17 +195,10 @@ export const Route = createFileRoute("/api/chat")({
           return result.toUIMessageStreamResponse({
             originalMessages: messages as UIMessage[],
           });
-        } catch (err) {
+        } catch (err: any) {
           console.error("Chat error:", err);
-          // Return a friendly fallback for any error
-          const fallback = {
-            role: "assistant" as const,
-            content: "I’m sorry, I couldn’t generate a response right now. Please try again later."
-          };
-          return new Response(JSON.stringify([fallback]), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          // Return a friendly fallback stream for any error
+          return createMockStreamResponse("I’m sorry, I couldn’t generate a response right now. Please ensure your NVIDIA_API_KEY is correct or try again in a moment.");
         }
       },
     },

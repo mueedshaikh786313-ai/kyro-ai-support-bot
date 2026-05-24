@@ -13,6 +13,7 @@ import { Route as UseCasesRouteImport } from './routes/use-cases'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiCrawlRouteImport } from './routes/api/crawl'
@@ -36,6 +37,11 @@ const IntegrationsRoute = IntegrationsRouteImport.update({
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -62,6 +68,7 @@ const ApiChatRoute = ApiChatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
   '/integrations': typeof IntegrationsRoute
   '/pricing': typeof PricingRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
   '/integrations': typeof IntegrationsRoute
   '/pricing': typeof PricingRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
   '/integrations': typeof IntegrationsRoute
   '/pricing': typeof PricingRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/contact'
     | '/features'
     | '/integrations'
     | '/pricing'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/contact'
     | '/features'
     | '/integrations'
     | '/pricing'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/contact'
     | '/features'
     | '/integrations'
     | '/pricing'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
   FeaturesRoute: typeof FeaturesRoute
   IntegrationsRoute: typeof IntegrationsRoute
   PricingRoute: typeof PricingRoute
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
   FeaturesRoute: FeaturesRoute,
   IntegrationsRoute: IntegrationsRoute,
   PricingRoute: PricingRoute,
