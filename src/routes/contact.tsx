@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, Phone, Mail, Building, User, MessageSquare, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Send, Building, User, MessageSquare, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -20,8 +20,6 @@ export const Route = createFileRoute("/contact")({
 function Contact() {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
-    phone: "",
     company: "",
     message: "",
   });
@@ -30,8 +28,8 @@ function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
-      toast.error("Please fill in all required fields (Name, Email, Message).");
+    if (!formData.name || !formData.message) {
+      toast.error("Please fill in all required fields (Name, Message).");
       return;
     }
 
@@ -39,8 +37,6 @@ function Contact() {
     try {
       const { error } = await supabase.from("leads").insert({
         name: formData.name,
-        email: formData.email,
-        phone: formData.phone || null,
         company: formData.company || null,
         message: formData.message,
       });
@@ -96,27 +92,7 @@ function Contact() {
           </div>
 
           <div className="space-y-6 pt-4">
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
-                <Mail className="text-primary" size={18} />
-              </div>
-              <div>
-                <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Email Us</h4>
-                <p className="text-sm font-medium text-foreground mt-1">hello@kyro.ai</p>
-                <p className="text-xs text-muted-foreground">Responses within 2 hours</p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
-                <Phone className="text-primary" size={18} />
-              </div>
-              <div>
-                <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Call concierge</h4>
-                <p className="text-sm font-medium text-foreground mt-1">+91 99283 01100</p>
-                <p className="text-xs text-muted-foreground">Mon - Fri, 9am - 6pm IST</p>
-              </div>
-            </div>
+  
           </div>
 
           <div className="glass rounded-2xl p-5 border border-primary/10 relative overflow-hidden">
@@ -189,38 +165,11 @@ function Contact() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <Mail size={12} className="text-primary" /> Email Address <span className="text-primary">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    placeholder="e.g. john@company.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50"
-                  />
-                </div>
+
               </div>
 
               <div className="grid sm:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <label htmlFor="phone" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <Phone size={12} className="text-primary" /> Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    placeholder="e.g. +91 99283 01100"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50"
-                  />
-                </div>
+
 
                 <div className="space-y-2">
                   <label htmlFor="company" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">

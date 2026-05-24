@@ -251,7 +251,9 @@ export function ChatWidget({
               )}
 
               {messages.map((m) => {
-                const text = m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
+                const text = typeof (m as any).content === "string"
+                  ? (m as any).content
+                  : m.parts?.map((p) => (p.type === "text" ? p.text : "")).join("") || "";
                 const isUser = m.role === "user";
                 return (
                   <div key={m.id} className={cn("flex gap-3.5", isUser && "justify-end")}>

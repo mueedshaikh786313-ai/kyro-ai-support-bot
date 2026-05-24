@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { createFileRoute } from "@tanstack/react-router";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { convertToModelMessages, streamText, type UIMessage, tool } from "ai";
